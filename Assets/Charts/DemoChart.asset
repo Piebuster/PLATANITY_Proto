@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be088d9cfa20c054f874ef56a5374c34, type: 3}
+  m_Name: DemoChart
+  m_EditorClassIdentifier: 
+  songName: sola(demo)
+  song: {fileID: 8300000, guid: dbad2cdb5fb255f40921bf8f9d50e523, type: 3}
+  bpm: 176
+  globalOffset: 0
+  notes:
+  - time: 0.6818
+    line: 1
+  - time: 0.6818
+    line: 3
+  - time: 1.0227
+    line: 1
+  - time: 1.0227
+    line: 3
+  - time: 1.3636
+    line: 1
+  - time: 1.3636
+    line: 3
+  - time: 1.7045
+    line: 1
+  - time: 1.7045
+    line: 3
+  - time: 2.0454
+    line: 1
+  - time: 2.0454
+    line: 3
+  - time: 5
+    line: 1
+  - time: 5
+    line: 3
