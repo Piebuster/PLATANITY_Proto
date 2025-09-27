@@ -1,0 +1,36 @@
+# Unity cache/derived data
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Mm]emoryCaptures/
+UserSettings/
+
+# IDE
+.vs/
+.vscode/
+.idea/
+
+# Crash/Reports
+*.pidb
+*.mdb
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Rider/JetBrains
+*.sln.DotSettings.user
+
+# Addressables
+ServerData/
+
+# Generated
+*.unitypackage
+
+# Optional: keep only if you export builds locally
+*.apk
+*.aab
+*.ipa
