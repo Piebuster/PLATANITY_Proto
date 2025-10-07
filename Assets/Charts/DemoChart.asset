@@ -17,27 +17,61 @@ MonoBehaviour:
   bpm: 176
   globalOffset: 0
   notes:
-  - time: 0.6818
+  - time: 5.558479
     line: 1
-  - time: 0.6818
+  - time: 5.5925694
     line: 3
-  - time: 1.0227
-    line: 1
-  - time: 1.0227
+  - time: 5.745979
+    line: 5
+  - time: 6.8539333
     line: 3
-  - time: 1.3636
+  - time: 6.8880243
+    line: 6
+  - time: 6.9391603
     line: 1
-  - time: 1.3636
+  - time: 8.183478
     line: 3
-  - time: 1.7045
+  - time: 8.268706
     line: 1
-  - time: 1.7045
+  - time: 8.473251
+    line: 5
+  - time: 9.56416
+    line: 6
+  - time: 9.632342
     line: 3
-  - time: 2.0454
+  - time: 9.717569
     line: 1
-  - time: 2.0454
+  - time: 10.910751
+    line: 1
+  - time: 10.944842
     line: 3
-  - time: 5
+  - time: 11.132342
+    line: 5
+  - time: 12.308478
+    line: 3
+  - time: 12.359615
+    line: 6
+  - time: 12.37666
     line: 1
-  - time: 5
+  - time: 13.620978
+    line: 3
+  - time: 13.672115
+    line: 0
+  - time: 13.672115
+    line: 5
+  - time: 13.757342
+    line: 1
+  - time: 15.00166
+    line: 3
+  - time: 15.035751
+    line: 6
+  - time: 15.155069
+    line: 1
+  - time: 16.416433
+    line: 4
+  - time: 16.43348
+    line: 2
+  - time: 17.74598
+    line: 1
+  - time: 17.763023
     line: 3
