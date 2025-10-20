@@ -64,6 +64,8 @@
     <Compile Include="Assets\Scripts\NoteJudge.cs" />
     <Compile Include="Assets\Scripts\Note.cs" />
     <Compile Include="Assets\Scripts\NoteSpawner.cs" />
+    <Compile Include="Assets\audios.cs" />
+    <Compile Include="Assets\Scripts\FixedAspectRatio.cs" />
     <Compile Include="Assets\Scripts\NoteInputManager.cs" />
     <Compile Include="Assets\Scripts\Chart.cs" />
     <Compile Include="Assets\Scripts\JudgeTextController.cs" />
