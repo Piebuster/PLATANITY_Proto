@@ -1,39 +1,35 @@
 ﻿// file: Note.cs
-// final stable option B (off-screen cleanup)
+// Purpose: Visual-only note that moves from spawn to judge by DSP time.
+// Judge is time-based elsewhere; this script does NOT decide hits.
 
 using UnityEngine;
-
 public class Note : MonoBehaviour {
-    [Header("Note Info")]
-    public int lineNumber = 1;
-    public float expectedHitTime;     // absolute audio time when note should be hit
-    public float travelStartTime;     // absolute audio time when travel starts
-    public float travelDuration;      // how long it takes from spawn to judge
-
-    [Header("Positions (set by NoteSpawner)")]
-    public Transform spawnPos;
-    public Transform judgePos;
-
-    [Header("Fallback")]
-    public float speed = 5f;          // only used if positions are missing
-
-    // off-screen cleanup threshold
-    public float offscreenX = -50f;
-
+    [Header("Visual Path (copied at spawn)")]
+    public Vector3 startPos;                 // spawn position
+    public Vector3 judgePos;                 // judge line position
+    [Header("Timing (DSP absolute seconds)")]
+    public double appearDspTime;             // when the note should start moving
+    public double hitDspTime;                // when the note should be hit
+    [Header("Meta (optional/debug)")]
+    public int lineNumber = 1;               // lane 1..6
+    public float expectedHitTime;            // song-time seconds (for logs/UI)
+    [Header("Registry Key")]
+    public int chartIndex;                   // ★ added: chart index for visuals map
+    // Safety: auto-despawn after some time past the hit moment
+    private const float DespawnLateMargin = 5.0f; // seconds after hit to auto-despawn
     void Update() {
-        if (spawnPos != null && judgePos != null && travelDuration > 0f) {
-            float songTime = NoteInputManager.AudioTime;
-            float t = (songTime - travelStartTime) / travelDuration;
-
-            // use LerpUnclamped so notes keep moving past the judge line
-            transform.position = Vector3.LerpUnclamped(spawnPos.position, judgePos.position, t);
-        } else {
-            // fallback: simple constant speed movement
-            transform.Translate(Vector3.left * speed * Time.deltaTime);
-        }
-
-        // cleanup when far off-screen
-        if (transform.position.x < offscreenX) {
+        // Current absolute time from audio DSP clock
+        double now = AudioSettings.dspTime;
+        // Normalize progress from appear -> hit (can overshoot after 1.0)
+        double denom = (hitDspTime - appearDspTime);
+        float t = (denom > 1e-6)
+            ? (float)((now - appearDspTime) / denom)
+            : 1f;
+        // Move along the line; allow overshoot past the judge line for nicer feel
+        // (no Clamp01 — paired with LerpUnclamped)
+        transform.position = Vector3.LerpUnclamped(startPos, judgePos, t);
+        // Auto-despawn a bit after the judged moment if still present
+        if (now > hitDspTime + DespawnLateMargin) {
             Destroy(gameObject);
         }
     }

@@ -1,14 +1,12 @@
 // file: NoteInputManager.cs
-// stroke mechanic implementation
-
+// Purpose: Handle key inputs (strings + stroke) and ask TimingJudgeCore for judgement.
+// Judge zones are no longer used for hit detection; only visuals remain.
 using UnityEngine;
 using System.Collections.Generic;
-
 public class NoteInputManager : MonoBehaviour {
     public static AudioSource audioSource;
     public static float AudioTime => audioSource != null ? audioSource.time : 0f;
-
-    // line key mapping (string side)
+    // Line key mapping (string side)
     public static Dictionary<int, KeyCode> keyMap = new Dictionary<int, KeyCode> {
         {1, KeyCode.Y},
         {2, KeyCode.T},
@@ -17,28 +15,33 @@ public class NoteInputManager : MonoBehaviour {
         {5, KeyCode.W},
         {6, KeyCode.Q},
     };
-
     private static Dictionary<int, NoteJudge> judges = new Dictionary<int, NoteJudge>();
-
     public static void RegisterJudge(NoteJudge judge) {
-        if (!judges.ContainsKey(judge.lineNumber)) {
+        if (!judges.ContainsKey(judge.lineNumber))
             judges.Add(judge.lineNumber, judge);
-        }
     }
-
     public static bool IsLineKeyHeld(int line) {
         return keyMap.ContainsKey(line) && Input.GetKey(keyMap[line]);
     }
-
     void Update() {
-        // Judge only when Space is pressed down
+        // --- 1) sweep overdue notes each frame (auto-miss)
+        TimingJudgeCore.I?.AutoMissSweep();
+        // --- 2) judge only when the stroke key (Space) is pressed
         if (Input.GetKeyDown(KeyCode.Space)) {
-            foreach (var pair in judges) {
+            foreach (var pair in keyMap) {
                 int line = pair.Key;
-
-                // Judge only if the string key (line key) is currently held
+                // Judge only if this string key is currently held
                 if (IsLineKeyHeld(line)) {
-                    pair.Value.TryJudge();
+                    var (res, idx, ms) = TimingJudgeCore.I.TryJudgeLane(line);
+
+                    string msg = res == HitResult.Rock ? "Rock!"
+                               : res == HitResult.Good ? "Good!"
+                               : "Miss!";
+                    Debug.Log($"{msg} (Lane {line})  ƒ¢={ms:F1} ms  idx={idx}");
+                    JudgeTextController.Instance?.ShowJudge(msg);
+                    // Remove the visual on successful hit
+                    if (idx >= 0)
+                        NoteVisuals.Despawn(idx);
                 }
             }
         }

@@ -9,25 +9,19 @@ using UnityEngine;
 public class FixedAspectRatio : MonoBehaviour {
     [Header("Target Aspect Ratio (e.g., 16:9 = 1.7777)")]
     public float targetAspect = 16f / 9f;
-
     private Camera cam;
-
     void Start() {
         cam = GetComponent<Camera>();
         UpdateViewport();
     }
-
     void Update() {
         // Keep checking while resizing window in editor or runtime
         UpdateViewport();
     }
-
     private void UpdateViewport() {
         float windowAspect = (float)Screen.width / Screen.height;
         float scaleHeight = windowAspect / targetAspect;
-
         Rect rect = cam.rect;
-
         if (scaleHeight < 1.0f) {
             // Add letterbox (black bars top and bottom)
             rect.width = 1.0f;
@@ -42,7 +36,6 @@ public class FixedAspectRatio : MonoBehaviour {
             rect.x = (1.0f - scaleWidth) / 2.0f;
             rect.y = 0;
         }
-
         cam.rect = rect;
     }
 }

@@ -240,7 +240,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b716a3dcb9368e940a565b62db410a79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  judgeSettings: {fileID: 11400000, guid: 248162a6d3d01e241b4c82a01233c71f, type: 2}
   lineNumber: 3
 --- !u!1 &54704283
 GameObject:
@@ -281,6 +280,51 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -1.8459822, y: 0.09005868, z: 2.2801714}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &103050396
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 103050398}
+  - component: {fileID: 103050397}
+  m_Layer: 0
+  m_Name: TimingJudgeCore
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &103050397
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 103050396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1fdab5f16137bfd42ab2b743c9041aae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  judge: {fileID: 11400000, guid: 248162a6d3d01e241b4c82a01233c71f, type: 2}
+--- !u!4 &103050398
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 103050396}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.87850463, y: 13.909967, z: -7.282421}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -339,8 +383,8 @@ MonoBehaviour:
   - {fileID: 9070077033979995016, guid: d2d707f76781c57429efff72c668d913, type: 3}
   chart: {fileID: 11400000, guid: 2091df23a7feccb4c8c1e1e600c84096, type: 2}
   audioSource: {fileID: 289659657}
-  spawnLeadTime: 1
-  autoPlayOnStart: 1
+  leadTimeSec: 2
+  preRollSec: 0.2
 --- !u!4 &289659656
 Transform:
   m_ObjectHideFlags: 0
@@ -706,7 +750,7 @@ Transform:
   m_GameObject: {fileID: 339686412}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 13.25, z: 10.995}
+  m_LocalPosition: {x: 0, y: 13.25, z: 10.98}
   m_LocalScale: {x: 50, y: 0.03, z: 0.001}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -833,7 +877,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b716a3dcb9368e940a565b62db410a79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  judgeSettings: {fileID: 11400000, guid: 248162a6d3d01e241b4c82a01233c71f, type: 2}
   lineNumber: 5
 --- !u!1 &504884155
 GameObject:
@@ -937,7 +980,7 @@ Transform:
   m_GameObject: {fileID: 504884155}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 16.25, z: 10.995}
+  m_LocalPosition: {x: 0, y: 16.25, z: 10.98}
   m_LocalScale: {x: 50, y: 0.03, z: 0.001}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1126,7 +1169,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b716a3dcb9368e940a565b62db410a79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  judgeSettings: {fileID: 11400000, guid: 248162a6d3d01e241b4c82a01233c71f, type: 2}
   lineNumber: 2
 --- !u!1 &725275435
 GameObject:
@@ -1567,7 +1609,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b716a3dcb9368e940a565b62db410a79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  judgeSettings: {fileID: 11400000, guid: 248162a6d3d01e241b4c82a01233c71f, type: 2}
   lineNumber: 4
 --- !u!1 &829792199
 GameObject:
@@ -1702,7 +1743,7 @@ Transform:
   m_GameObject: {fileID: 917998181}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 17.75, z: 10.995}
+  m_LocalPosition: {x: 0, y: 17.75, z: 10.98}
   m_LocalScale: {x: 50, y: 0.03, z: 0.001}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1829,7 +1870,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b716a3dcb9368e940a565b62db410a79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  judgeSettings: {fileID: 11400000, guid: 248162a6d3d01e241b4c82a01233c71f, type: 2}
   lineNumber: 6
 --- !u!1 &998477334
 GameObject:
@@ -2060,7 +2100,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b716a3dcb9368e940a565b62db410a79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  judgeSettings: {fileID: 11400000, guid: 248162a6d3d01e241b4c82a01233c71f, type: 2}
   lineNumber: 1
 --- !u!1 &1287339727
 GameObject:
@@ -2164,7 +2203,7 @@ Transform:
   m_GameObject: {fileID: 1287339727}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 14.75, z: 10.995}
+  m_LocalPosition: {x: 0, y: 14.75, z: 10.98}
   m_LocalScale: {x: 50, y: 0.03, z: 0.001}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2899,7 +2938,7 @@ Transform:
   m_GameObject: {fileID: 1933678393}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 19.25, z: 10.995}
+  m_LocalPosition: {x: 0, y: 19.25, z: 10.98}
   m_LocalScale: {x: 50, y: 0.03, z: 0.001}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3111,3 +3150,4 @@ SceneRoots:
   - {fileID: 504884159}
   - {fileID: 1287339731}
   - {fileID: 339686416}
+  - {fileID: 103050398}

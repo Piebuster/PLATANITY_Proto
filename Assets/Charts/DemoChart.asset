@@ -15,7 +15,7 @@ MonoBehaviour:
   songName: sola(demo)
   song: {fileID: 8300000, guid: dbad2cdb5fb255f40921bf8f9d50e523, type: 3}
   bpm: 176
-  globalOffset: 0
+  globalOffset: 0.7
   notes:
   - time: 5.4545455
     line: 4
@@ -81,5 +81,451 @@ MonoBehaviour:
     line: 2
   - time: 10.738636
     line: 2
-  - time: 13.672115
-    line: 0
+  - time: 10.909091
+    line: 4
+  - time: 11.079546
+    line: 4
+  - time: 11.25
+    line: 4
+  - time: 11.420455
+    line: 4
+  - time: 11.590909
+    line: 4
+  - time: 11.761364
+    line: 4
+  - time: 11.931818
+    line: 4
+  - time: 12.102273
+    line: 3
+  - time: 12.272727
+    line: 3
+  - time: 12.443182
+    line: 3
+  - time: 12.613636
+    line: 3
+  - time: 12.784091
+    line: 3
+  - time: 12.954546
+    line: 3
+  - time: 13.125
+    line: 3
+  - time: 13.295455
+    line: 3
+  - time: 13.465909
+    line: 3
+  - time: 13.636364
+    line: 1
+  - time: 13.806818
+    line: 1
+  - time: 13.977273
+    line: 1
+  - time: 14.147727
+    line: 1
+  - time: 14.318182
+    line: 1
+  - time: 14.488636
+    line: 1
+  - time: 14.659091
+    line: 1
+  - time: 14.829546
+    line: 2
+  - time: 15
+    line: 2
+  - time: 15.170455
+    line: 2
+  - time: 15.340909
+    line: 2
+  - time: 15.511364
+    line: 2
+  - time: 15.681818
+    line: 2
+  - time: 15.852273
+    line: 2
+  - time: 16.022728
+    line: 2
+  - time: 16.193182
+    line: 2
+  - time: 16.363636
+    line: 4
+  - time: 16.534092
+    line: 4
+  - time: 16.704546
+    line: 4
+  - time: 16.875
+    line: 4
+  - time: 17.045454
+    line: 4
+  - time: 17.21591
+    line: 4
+  - time: 17.386364
+    line: 4
+  - time: 17.556818
+    line: 3
+  - time: 17.727272
+    line: 3
+  - time: 17.897728
+    line: 3
+  - time: 18.068182
+    line: 3
+  - time: 18.238636
+    line: 3
+  - time: 18.409092
+    line: 3
+  - time: 18.579546
+    line: 3
+  - time: 18.75
+    line: 3
+  - time: 18.920454
+    line: 3
+  - time: 19.09091
+    line: 1
+  - time: 19.261364
+    line: 1
+  - time: 19.431818
+    line: 1
+  - time: 19.602272
+    line: 1
+  - time: 19.772728
+    line: 1
+  - time: 19.943182
+    line: 1
+  - time: 20.113636
+    line: 1
+  - time: 20.284092
+    line: 2
+  - time: 20.454546
+    line: 2
+  - time: 20.625
+    line: 2
+  - time: 20.795454
+    line: 2
+  - time: 20.96591
+    line: 2
+  - time: 21.136364
+    line: 2
+  - time: 21.306818
+    line: 2
+  - time: 21.477272
+    line: 2
+  - time: 21.647728
+    line: 2
+  - time: 21.818182
+    line: 4
+  - time: 21.988636
+    line: 4
+  - time: 22.159092
+    line: 4
+  - time: 22.329546
+    line: 4
+  - time: 22.5
+    line: 4
+  - time: 22.670454
+    line: 4
+  - time: 22.84091
+    line: 4
+  - time: 23.011364
+    line: 3
+  - time: 23.181818
+    line: 3
+  - time: 23.352272
+    line: 3
+  - time: 23.522728
+    line: 3
+  - time: 23.693182
+    line: 3
+  - time: 23.863636
+    line: 3
+  - time: 24.034092
+    line: 3
+  - time: 24.204546
+    line: 3
+  - time: 24.375
+    line: 3
+  - time: 24.545454
+    line: 1
+  - time: 24.71591
+    line: 1
+  - time: 24.886364
+    line: 1
+  - time: 25.056818
+    line: 1
+  - time: 25.227272
+    line: 1
+  - time: 25.397728
+    line: 1
+  - time: 25.568182
+    line: 2
+  - time: 25.738636
+    line: 2
+  - time: 25.909092
+    line: 2
+  - time: 26.079546
+    line: 2
+  - time: 26.25
+    line: 2
+  - time: 26.420454
+    line: 2
+  - time: 26.59091
+    line: 2
+  - time: 26.761364
+    line: 2
+  - time: 26.931818
+    line: 2
+  - time: 27.102272
+    line: 2
+  - time: 27.272728
+    line: 4
+  - time: 27.443182
+    line: 4
+  - time: 27.613636
+    line: 4
+  - time: 27.784092
+    line: 4
+  - time: 27.954546
+    line: 4
+  - time: 28.125
+    line: 4
+  - time: 28.295454
+    line: 4
+  - time: 28.46591
+    line: 3
+  - time: 28.636364
+    line: 3
+  - time: 28.806818
+    line: 3
+  - time: 28.977272
+    line: 3
+  - time: 29.147728
+    line: 3
+  - time: 29.318182
+    line: 3
+  - time: 29.488636
+    line: 3
+  - time: 29.659092
+    line: 3
+  - time: 29.829546
+    line: 3
+  - time: 30
+    line: 1
+  - time: 30.170454
+    line: 1
+  - time: 30.34091
+    line: 1
+  - time: 30.511364
+    line: 1
+  - time: 30.681818
+    line: 1
+  - time: 30.852272
+    line: 1
+  - time: 31.022728
+    line: 1
+  - time: 31.193182
+    line: 2
+  - time: 31.363636
+    line: 2
+  - time: 31.534092
+    line: 2
+  - time: 31.704546
+    line: 2
+  - time: 31.875
+    line: 2
+  - time: 32.045456
+    line: 2
+  - time: 32.215908
+    line: 2
+  - time: 32.386364
+    line: 2
+  - time: 32.55682
+    line: 2
+  - time: 32.727272
+    line: 4
+  - time: 32.897728
+    line: 4
+  - time: 33.068184
+    line: 4
+  - time: 33.238636
+    line: 4
+  - time: 33.409092
+    line: 4
+  - time: 33.579544
+    line: 4
+  - time: 33.75
+    line: 4
+  - time: 33.920456
+    line: 3
+  - time: 34.090908
+    line: 3
+  - time: 34.261364
+    line: 3
+  - time: 34.43182
+    line: 3
+  - time: 34.602272
+    line: 3
+  - time: 34.772728
+    line: 3
+  - time: 34.943184
+    line: 3
+  - time: 35.113636
+    line: 3
+  - time: 35.284092
+    line: 3
+  - time: 35.454544
+    line: 1
+  - time: 35.625
+    line: 1
+  - time: 35.795456
+    line: 1
+  - time: 35.965908
+    line: 1
+  - time: 36.136364
+    line: 1
+  - time: 36.30682
+    line: 1
+  - time: 36.477272
+    line: 1
+  - time: 36.647728
+    line: 2
+  - time: 36.818184
+    line: 2
+  - time: 36.988636
+    line: 2
+  - time: 37.159092
+    line: 2
+  - time: 37.329544
+    line: 2
+  - time: 37.5
+    line: 2
+  - time: 37.670456
+    line: 2
+  - time: 37.840908
+    line: 2
+  - time: 38.011364
+    line: 2
+  - time: 38.18182
+    line: 4
+  - time: 38.352272
+    line: 4
+  - time: 38.522728
+    line: 4
+  - time: 38.693184
+    line: 4
+  - time: 38.863636
+    line: 4
+  - time: 39.034092
+    line: 4
+  - time: 39.204544
+    line: 4
+  - time: 39.375
+    line: 3
+  - time: 39.545456
+    line: 3
+  - time: 39.715908
+    line: 3
+  - time: 39.886364
+    line: 3
+  - time: 40.05682
+    line: 3
+  - time: 40.227272
+    line: 3
+  - time: 40.397728
+    line: 3
+  - time: 40.568184
+    line: 3
+  - time: 40.738636
+    line: 3
+  - time: 40.909092
+    line: 1
+  - time: 41.079544
+    line: 1
+  - time: 41.25
+    line: 1
+  - time: 41.420456
+    line: 1
+  - time: 41.590908
+    line: 1
+  - time: 41.761364
+    line: 1
+  - time: 41.93182
+    line: 1
+  - time: 42.102272
+    line: 2
+  - time: 42.272728
+    line: 2
+  - time: 42.443184
+    line: 2
+  - time: 42.613636
+    line: 2
+  - time: 42.784092
+    line: 2
+  - time: 42.954544
+    line: 2
+  - time: 43.125
+    line: 2
+  - time: 43.295456
+    line: 2
+  - time: 43.465908
+    line: 2
+  - time: 43.636364
+    line: 4
+  - time: 43.80682
+    line: 4
+  - time: 43.977272
+    line: 4
+  - time: 44.147728
+    line: 4
+  - time: 44.318184
+    line: 4
+  - time: 44.488636
+    line: 4
+  - time: 44.659092
+    line: 4
+  - time: 44.829544
+    line: 3
+  - time: 45
+    line: 3
+  - time: 45.170456
+    line: 3
+  - time: 45.340908
+    line: 3
+  - time: 45.511364
+    line: 3
+  - time: 45.68182
+    line: 3
+  - time: 45.852272
+    line: 3
+  - time: 46.022728
+    line: 3
+  - time: 46.193184
+    line: 3
+  - time: 46.363636
+    line: 1
+  - time: 46.534092
+    line: 1
+  - time: 46.704544
+    line: 1
+  - time: 46.875
+    line: 1
+  - time: 47.045456
+    line: 1
+  - time: 47.215908
+    line: 1
+  - time: 47.386364
+    line: 1
+  - time: 47.55682
+    line: 2
+  - time: 47.727272
+    line: 2
+  - time: 47.897728
+    line: 2
+  - time: 48.068184
+    line: 2
+  - time: 48.238636
+    line: 2
+  - time: 48.409092
+    line: 2
+  - time: 48.579544
+    line: 2
+  - time: 48.75
+    line: 2
+  - time: 48.920456
+    line: 2
