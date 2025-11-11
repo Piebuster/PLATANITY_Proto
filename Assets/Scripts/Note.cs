@@ -1,7 +1,6 @@
 ﻿// file: Note.cs
 // Purpose: Visual-only note that moves from spawn to judge by DSP time.
 // Judge is time-based elsewhere; this script does NOT decide hits.
-
 using UnityEngine;
 public class Note : MonoBehaviour {
     [Header("Visual Path (copied at spawn)")]

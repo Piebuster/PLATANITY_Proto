@@ -1,49 +1,83 @@
 // file: NoteInputManager.cs
-// Purpose: Handle key inputs (strings + stroke) and ask TimingJudgeCore for judgement.
-// Judge zones are no longer used for hit detection; only visuals remain.
+// Purpose: DSP-timestamped input buffer system for precise timing.
+// All judgement requests are synchronized with Audio DSP clock.
+// written by Donghyeok Hahm + GPT
+// updated: 2025-10-22
+
 using UnityEngine;
 using System.Collections.Generic;
 public class NoteInputManager : MonoBehaviour {
     public static AudioSource audioSource;
     public static float AudioTime => audioSource != null ? audioSource.time : 0f;
-    // Line key mapping (string side)
-    public static Dictionary<int, KeyCode> keyMap = new Dictionary<int, KeyCode> {
-        {1, KeyCode.Y},
-        {2, KeyCode.T},
-        {3, KeyCode.R},
-        {4, KeyCode.E},
-        {5, KeyCode.W},
-        {6, KeyCode.Q},
+    public enum ControlMode { Desk, Performance }
+    public static ControlMode currentMode = ControlMode.Desk;
+    // Lane key mapping (string side)
+    private static readonly Dictionary<int, KeyCode[]> keyLayouts = new Dictionary<int, KeyCode[]> {
+        {1, new KeyCode[]{ KeyCode.Y, KeyCode.Alpha1 }},
+        {2, new KeyCode[]{ KeyCode.T, KeyCode.Alpha2 }},
+        {3, new KeyCode[]{ KeyCode.R, KeyCode.Alpha3 }},
+        {4, new KeyCode[]{ KeyCode.E, KeyCode.Alpha4 }},
+        {5, new KeyCode[]{ KeyCode.W, KeyCode.Alpha5 }},
+        {6, new KeyCode[]{ KeyCode.Q, KeyCode.Alpha6 }},
     };
-    private static Dictionary<int, NoteJudge> judges = new Dictionary<int, NoteJudge>();
-    public static void RegisterJudge(NoteJudge judge) {
-        if (!judges.ContainsKey(judge.lineNumber))
-            judges.Add(judge.lineNumber, judge);
+    private struct InputStamp {
+        public int lane;
+        public double dspTime;
     }
-    public static bool IsLineKeyHeld(int line) {
-        return keyMap.ContainsKey(line) && Input.GetKey(keyMap[line]);
-    }
+    // Input buffer list (short lifetime)
+    private readonly List<InputStamp> inputBuffer = new List<InputStamp>();
+    private const double bufferLife = 0.10; // keep input valid for 100 ms
     void Update() {
-        // --- 1) sweep overdue notes each frame (auto-miss)
+        // --- Toggle mode (Tab key) ---
+        if (Input.GetKeyDown(KeyCode.Tab)) {
+            currentMode = (currentMode == ControlMode.Desk)
+                ? ControlMode.Performance
+                : ControlMode.Desk;
+            Debug.Log($"[NoteInputManager] Mode switched ¨ {currentMode}");
+        }
+        // --- Auto miss ---
         TimingJudgeCore.I?.AutoMissSweep();
-        // --- 2) judge only when the stroke key (Space) is pressed
-        if (Input.GetKeyDown(KeyCode.Space)) {
-            foreach (var pair in keyMap) {
-                int line = pair.Key;
-                // Judge only if this string key is currently held
-                if (IsLineKeyHeld(line)) {
-                    var (res, idx, ms) = TimingJudgeCore.I.TryJudgeLane(line);
-
-                    string msg = res == HitResult.Rock ? "Rock!"
-                               : res == HitResult.Good ? "Good!"
-                               : "Miss!";
-                    Debug.Log($"{msg} (Lane {line})  ƒ¢={ms:F1} ms  idx={idx}");
-                    JudgeTextController.Instance?.ShowJudge(msg);
-                    // Remove the visual on successful hit
-                    if (idx >= 0)
-                        NoteVisuals.Despawn(idx);
+        if (TimingJudgeCore.I == null || !TimingJudgeCore.I.Initialized)
+            return;
+        double dspNow = AudioSettings.dspTime;
+        // --- Record keydown events with DSP timestamp ---
+        if (IsStrokePressed()) {
+            foreach (var pair in keyLayouts) {
+                int lane = pair.Key;
+                if (IsLineKeyHeld(lane)) {
+                    inputBuffer.Add(new InputStamp {
+                        lane = lane,
+                        dspTime = dspNow
+                    });
                 }
             }
         }
+        // --- Process buffered inputs ---
+        for (int i = inputBuffer.Count - 1; i >= 0; i--) {
+            var s = inputBuffer[i];
+            var (res, idx, ms) = TimingJudgeCore.I.TryJudgeLane(s.lane, s.dspTime);
+            if (res != HitResult.Miss && idx >= 0)
+                NoteVisuals.Despawn(idx);
+            if (res != HitResult.None)
+                JudgeTextController.Instance?.ShowJudge(res.ToString());
+            if (dspNow - s.dspTime > bufferLife || res != HitResult.Miss)
+                inputBuffer.RemoveAt(i);
+        }
+    }
+    // --- Input helpers ---
+    public static bool IsLineKeyHeld(int line) {
+        if (!keyLayouts.ContainsKey(line)) return false;
+        KeyCode key = (currentMode == ControlMode.Desk)
+            ? keyLayouts[line][0]
+            : keyLayouts[line][1];
+        return Input.GetKey(key);
+    }
+    private bool IsStrokePressed() {
+        if (currentMode == ControlMode.Desk)
+            return Input.GetKeyDown(KeyCode.Space);
+        else
+            return Input.GetKeyDown(KeyCode.RightShift)
+                || Input.GetKeyDown(KeyCode.Return)
+                || Input.GetKeyDown(KeyCode.KeypadEnter);
     }
 }

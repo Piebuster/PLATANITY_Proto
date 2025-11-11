@@ -1,16 +1,5 @@
 // file: TimingJudgeCore.cs
 // Purpose: Pure DSP-time-based judging core (no colliders).
-//  - Compares AudioSettings.dspTime vs chart note times (seconds)
-//  - Maintains per-lane "head" pointers for next unhit note
-//  - Handles auto-miss logic only (visuals are managed by NoteVisuals & Note.cs)
-//
-// How to use:
-//  1) Place this on an empty GameObject in the scene.
-//  2) Assign GameJudgeSettings in the inspector.
-//  3) After AudioSource.PlayScheduled(), call Init(chart, songStartDspTime).
-//  4) Call AutoMissSweep() every frame (from Update).
-//  5) On input, call TryJudgeLane(lane) to evaluate hits.
-//
 // written by Donghyeok Hahm + GPT
 // updated: 2025-10-21 (refactored & cleaned)
 
@@ -103,5 +92,23 @@ public class TimingJudgeCore : MonoBehaviour {
         while (i < chart.notes.Length && chart.notes[i].line != lane)
             i++;
         return (i < chart.notes.Length) ? i : -1;
+    }
+    // DSP-based input version of TryJudgeLane
+    public (HitResult res, int idx, double ms) TryJudgeLane(int lane, double inputDspTime) {
+        if (!initialized || chart == null || chart.notes == null || judge == null)
+            return (HitResult.Miss, -1, 0.0);
+        int idx = NextIndex(lane);
+        if (idx < 0) return (HitResult.Miss, -1, 0.0);
+        // convert input DSP time to song time
+        double songTimeAtInput = (inputDspTime - songStartDspTime) - chart.globalOffset;
+        double delta = songTimeAtInput - chart.notes[idx].time;
+        double absDelta = System.Math.Abs(delta);
+        HitResult result =
+            (absDelta <= judge.perfectTiming) ? HitResult.Rock :
+            (absDelta <= judge.goodTiming) ? HitResult.Good :
+                                             HitResult.Miss;
+        if (result != HitResult.Miss)
+            head[lane - 1] = idx + 1; // advance head to next note
+        return (result, result == HitResult.Miss ? -1 : idx, delta * 1000.0);
     }
 }

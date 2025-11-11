@@ -36,7 +36,7 @@ public class NoteSpawner : MonoBehaviour {
         if (chart == null || audioSource == null) return;
         // Schedule audio playback on the DSP clock for sample-accurate start
         songStartDspTime = AudioSettings.dspTime + preRollSec;
-        audioSource.PlayScheduled(songStartDspTime + chart.globalOffset);
+        audioSource.PlayScheduled(songStartDspTime);
         // Initialize the pure time-based judging core (no colliders)
         TimingJudgeCore.I?.Init(chart, songStartDspTime);
         isStarted = true;
@@ -45,13 +45,23 @@ public class NoteSpawner : MonoBehaviour {
             System.Array.Sort(chart.notes, (a, b) => a.time.CompareTo(b.time));
         nextNoteIndex = 0;
         Debug.Log($"[NoteSpawner] Scheduled start at dsp={songStartDspTime:F6}s (preRoll={preRollSec:F2}s)");
+        Debug.Log($"DSP={AudioSettings.dspTime:F4} | Scheduled={songStartDspTime:F4} | offset={chart.globalOffset:F2}");
     }
     void Update() {
+        double dspNow = AudioSettings.dspTime;
+        double songPosSec = dspNow - songStartDspTime;
+        Debug.Log($"[AUDIO TEST] DSPNow={dspNow:F3}, SongPos={songPosSec:F3}, Audio.time={audioSource.time:F3}");
+
+
+
+
+
+
         if (!isStarted || chart == null || audioSource == null) return;
         if (chart.notes == null || chart.notes.Length == 0) return;
         if (nextNoteIndex >= chart.notes.Length) return;
         // Current song time referenced to DSP start, including global offset
-        double songTimeSec = (AudioSettings.dspTime - songStartDspTime);
+        double songTimeSec = (AudioSettings.dspTime - songStartDspTime) - chart.globalOffset;
         // Spawn all notes whose "appear time" has come (hitTime - leadTime)
         // Use while-loop to catch multiple notes in the same frame
         while (nextNoteIndex < chart.notes.Length) {
