@@ -14,10 +14,17 @@ public class NoteSpawner : MonoBehaviour {
     public Chart chart;               // ScriptableObject with notes[]
     public AudioSource audioSource;   // AudioSource that plays the song
     [Header("Travel / Scheduling")]
-    public float leadTimeSec = 2.0f;  // travel time from spawn to judge
+    public float leadTimeSec = 0.5f;  // travel time from spawn to judge
     public float preRollSec = 0.20f; // DSP scheduling margin before playback
     private int nextNoteIndex = 0;     // next note to spawn (chart index)
     private double songStartDspTime;      // DSP time when playback starts
+    [Header("Measure Lines")]
+    public GameObject measureLinePrefab;  // MesureLine prefab (MeasureLineQuad)
+    public Transform measureSpawn;        // starting point where measure line start fly
+    public Transform measureJudge;        // location that measure line arrive
+    public int beatsPerMeasure = 4;       // beat per one bar? (default 4)
+    private int nextMeasureIndex = 0;     // next measure index number
+    private float secPerBeat = 0f;        // 1 beat == how long sec?
     private bool isStarted = false;
     void Awake() {
         // Basic safety guards
@@ -34,51 +41,49 @@ public class NoteSpawner : MonoBehaviour {
     }
     void Start() {
         if (chart == null || audioSource == null) return;
-        // Schedule audio playback on the DSP clock for sample-accurate start
+        // 1) set play time based on DSP
         songStartDspTime = AudioSettings.dspTime + preRollSec;
+        // 2) turn off playOnAwake , playscheduled exactly on code
+        audioSource.playOnAwake = false;
+        audioSource.Stop();
         audioSource.PlayScheduled(songStartDspTime);
-        // Initialize the pure time-based judging core (no colliders)
+        // 3) initialize timing judge core
         TimingJudgeCore.I?.Init(chart, songStartDspTime);
         isStarted = true;
-        // Ensure notes are ordered by time
+        // 4) align notes
         if (chart.notes != null && chart.notes.Length > 1)
             System.Array.Sort(chart.notes, (a, b) => a.time.CompareTo(b.time));
         nextNoteIndex = 0;
-        Debug.Log($"[NoteSpawner] Scheduled start at dsp={songStartDspTime:F6}s (preRoll={preRollSec:F2}s)");
-        Debug.Log($"DSP={AudioSettings.dspTime:F4} | Scheduled={songStartDspTime:F4} | offset={chart.globalOffset:F2}");
+        // +) initialize for MesureLine
+        if (chart != null && chart.bpm > 0f) {
+            secPerBeat = 60f / chart.bpm;   // 1 beat == ?sec
+        }
+        nextMeasureIndex = 0;
     }
     void Update() {
-        double dspNow = AudioSettings.dspTime;
-        double songPosSec = dspNow - songStartDspTime;
-        Debug.Log($"[AUDIO TEST] DSPNow={dspNow:F3}, SongPos={songPosSec:F3}, Audio.time={audioSource.time:F3}");
-
-
-
-
-
-
         if (!isStarted || chart == null || audioSource == null) return;
         if (chart.notes == null || chart.notes.Length == 0) return;
         if (nextNoteIndex >= chart.notes.Length) return;
-        // Current song time referenced to DSP start, including global offset
-        double songTimeSec = (AudioSettings.dspTime - songStartDspTime) - chart.globalOffset;
-        // Spawn all notes whose "appear time" has come (hitTime - leadTime)
-        // Use while-loop to catch multiple notes in the same frame
+        // make total offset first
+        float totalOffset = chart.globalOffset + GameSettings.UserOffsetSec;
+        // chart time = time based on DSP - start Time - totaloffset
+        double songTimeSec = (AudioSettings.dspTime - songStartDspTime) - totalOffset;
         while (nextNoteIndex < chart.notes.Length) {
-            NoteData next = chart.notes[nextNoteIndex]; // hit-time in seconds (absolute in song)
-            // Include globalOffset in appear time for perfect alignment
-            double appearTime = next.time - leadTimeSec + chart.globalOffset;
+            NoteData next = chart.notes[nextNoteIndex];
+            // it's chart time so don't add global offset
+            double appearTime = next.time - leadTimeSec;   
             if (songTimeSec >= appearTime) {
-                SpawnNote(next, nextNoteIndex); // pass chart index
+                SpawnNote(next, nextNoteIndex, totalOffset);
                 nextNoteIndex++;
             } else {
-                // Not yet time to spawn the next note
                 break;
             }
         }
+        // ==== spawn MeasureLine ====
+        SpawnMeasuresIfNeeded(songTimeSec, totalOffset);
     }
     // Spawns a visual note for given NoteData and registers it by chart index
-    private void SpawnNote(NoteData noteData, int chartIndex) {
+    private void SpawnNote(NoteData noteData, int chartIndex, float totalOffset) {
         // Strict validation – skip invalid notes
         if (noteData == null) return;
         if (noteData.line < 1 || noteData.line > 6) {
@@ -99,7 +104,7 @@ public class NoteSpawner : MonoBehaviour {
         }
         GameObject go = Instantiate(prefab, spawnPos.position, Quaternion.identity);
         // Convert song-time (sec) to absolute DSP times
-        double hitDsp = songStartDspTime + (noteData.time + chart.globalOffset);
+        double hitDsp = songStartDspTime + (noteData.time + totalOffset);
         double appearDsp = hitDsp - leadTimeSec;
         // Fill visual fields
         Note note = go.GetComponent<Note>();
@@ -114,5 +119,46 @@ public class NoteSpawner : MonoBehaviour {
         }
         // Register the visual so the time-judge can despawn by index
         NoteVisuals.Register(chartIndex, go);
+    }
+    private void SpawnMeasuresIfNeeded(double songTimeSec, float totalOffset) {
+        // if prefab or point empty -> quit
+        if (measureLinePrefab == null || measureSpawn == null || measureJudge == null)
+            return;
+        if (secPerBeat <= 0f || beatsPerMeasure <= 0)
+            return;
+        // length of one bar(sec) = 1 bar length * beat per bar
+        double measureDuration = secPerBeat * beatsPerMeasure;
+        // about nextMeasureIndex = 0,1,2,… 
+        while (true) {
+            // hit timing of this bar
+            double measureTime = nextMeasureIndex * measureDuration;
+            // same logic with note : appearTime = hitTime - leadTimeSec
+            double appearTime = measureTime - leadTimeSec;
+            // songTime pass by appearTime -> spawn this MeasureLine
+            if (songTimeSec >= appearTime) {
+                SpawnMeasureLine(measureTime, totalOffset);
+                nextMeasureIndex++;   // prepare next bar
+            } else {
+                // not timing yet → no more thing to spawn
+                break;
+            }
+        }
+    }
+    private void SpawnMeasureLine(double measureTimeSec, float totalOffset) {
+        // always spawn from same point (measureSpawn)
+        GameObject go = Instantiate(measureLinePrefab,
+                                    measureSpawn.position,
+                                    Quaternion.identity);
+        // calculate DSP time based on same rule with note
+        double hitDsp = songStartDspTime + (measureTimeSec + totalOffset);
+        double appearDsp = hitDsp - leadTimeSec;
+        // fill value in MeasureLine script
+        MeasureLine line = go.GetComponent<MeasureLine>();
+        if (line != null) {
+            line.startPos = measureSpawn.position;
+            line.judgePos = measureJudge.position;
+            line.appearDspTime = appearDsp;
+            line.hitDspTime = hitDsp;
+        }
     }
 }

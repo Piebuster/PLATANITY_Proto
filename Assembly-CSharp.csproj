@@ -62,14 +62,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\NoteJudge.cs" />
+    <Compile Include="Assets\Scripts\GameSettings.cs" />
     <Compile Include="Assets\Scripts\Note.cs" />
     <Compile Include="Assets\Scripts\NoteVisuals.cs" />
     <Compile Include="Assets\Scripts\NoteSpawner.cs" />
     <Compile Include="Assets\Scripts\TimingJudgeCore.cs" />
+    <Compile Include="Assets\Scripts\OffsetSettingUI.cs" />
+    <Compile Include="Assets\Scripts\MeasureLine.cs" />
     <Compile Include="Assets\audios.cs" />
+    <Compile Include="Assets\Scripts\GameBoot.cs" />
     <Compile Include="Assets\Scripts\FixedAspectRatio.cs" />
     <Compile Include="Assets\Scripts\NoteInputManager.cs" />
     <Compile Include="Assets\Scripts\Chart.cs" />
+    <Compile Include="Assets\Scripts\AudioCalibrator.cs" />
     <Compile Include="Assets\Scripts\JudgeTextController.cs" />
     <Compile Include="Assets\Scripts\GameJudgeSettings.cs" />
     <Compile Include="Assets\Scripts\NoteData.cs" />

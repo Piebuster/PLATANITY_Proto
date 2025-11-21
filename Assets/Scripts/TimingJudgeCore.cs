@@ -5,7 +5,10 @@
 
 using UnityEngine;
 public enum HitResult { None, Rock, Good, Miss }
+
 public class TimingJudgeCore : MonoBehaviour {
+    // chart default offset + user offset (based on second)
+    private float TotalOffsetSec => (chart != null ? chart.globalOffset : 0f) + GameSettings.UserOffsetSec;
     // ---- Singleton ---------------------------------------------------------
     public static TimingJudgeCore I { get; private set; }
     // ---- References --------------------------------------------------------
@@ -41,7 +44,7 @@ public class TimingJudgeCore : MonoBehaviour {
     private double NowSong() {
         if (!initialized || chart == null)
             return 0.0;
-        return (AudioSettings.dspTime - songStartDspTime) - chart.globalOffset;
+        return (AudioSettings.dspTime - songStartDspTime) - TotalOffsetSec;
     }
     // ---- Automatic Miss Sweep ---------------------------------------------
     /// <summary>
@@ -60,6 +63,7 @@ public class TimingJudgeCore : MonoBehaviour {
                 double lateness = now - n.time; // + if late
                 if (lateness > judge.goodTiming) {
                     head[lane - 1] = idx + 1;   // Åö FIX: consume the overdue note properly
+                    JudgeTextController.Instance?.ShowJudge(HitResult.Miss.ToString());
 #if UNITY_EDITOR
                     Debug.Log($"[AutoMiss] Lane={lane} idx={idx} É¢={lateness * 1000.0:F1} ms");
 #endif
@@ -99,9 +103,10 @@ public class TimingJudgeCore : MonoBehaviour {
             return (HitResult.Miss, -1, 0.0);
         int idx = NextIndex(lane);
         if (idx < 0) return (HitResult.Miss, -1, 0.0);
-        // convert input DSP time to song time
-        double songTimeAtInput = (inputDspTime - songStartDspTime) - chart.globalOffset;
+        // convert input DSP time to song time (chart offset + user offset)
+        double songTimeAtInput = (inputDspTime - songStartDspTime) - TotalOffsetSec;
         double delta = songTimeAtInput - chart.notes[idx].time;
+
         double absDelta = System.Math.Abs(delta);
         HitResult result =
             (absDelta <= judge.perfectTiming) ? HitResult.Rock :

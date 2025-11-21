@@ -15,11 +15,8 @@ MonoBehaviour:
   songName: PLATANITY_Theme
   song: {fileID: 8300000, guid: 0b93d74f60a3a2841a5032d8bc4fc215, type: 3}
   bpm: 122
-  globalOffset: 0.6
+  globalOffset: 0.1
   notes:
-  - time: 1
-    endTime: 7.8
-    line: 1
   - time: 7.8688526
     endTime: 0
     line: 1
