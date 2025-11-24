@@ -1,7 +1,8 @@
 ﻿// file: ChartEditorWindow.cs
 // Full-length scrollable chart editor (1~6 lanes) with snap-to-grid (magnet)
+// Supports Normal / Mute notes
 // written by Donghyeok Hahm
-// updated: 251009-snap
+// updated: 251121 - Mute note edit
 
 using UnityEngine;
 using UnityEditor;
@@ -16,18 +17,25 @@ public class ChartEditorWindow : EditorWindow {
     private float zoom = 1f;        // vertical scale multiplier
     private float beatHeight = 40f; // pixels per beat (before zoom)
     private const float LaneWidth = 60f;
+
     // Grid / snap
-    // quantizeDenom expresses musical fraction denominator: 1/1, 1/2, 1/4, 1/8, 1/16
     private int quantizeDenom = 4;      // default 1/4 (quarter note)
     private bool snapEnabled = true;    // magnet on/off
+
     // Timing cache
     private float secPerBeat;
     private float totalTime;
     private float totalBeats;
+
+    // Edit mode
+    private enum EditKind { Normal, Mute }
+    private EditKind editKind = EditKind.Normal;
+
     [MenuItem("Tools/PLATANITY Chart Editor")]
     public static void ShowWindow() {
         GetWindow<ChartEditorWindow>("Chart Editor");
     }
+
     void OnGUI() {
         GUILayout.Label("Chart Editor", EditorStyles.boldLabel);
 
@@ -36,6 +44,7 @@ public class ChartEditorWindow : EditorWindow {
             EditorGUILayout.HelpBox("Select a Chart asset to edit.", MessageType.Info);
             return;
         }
+
         currentChart.bpm = EditorGUILayout.FloatField("BPM", Mathf.Max(1f, currentChart.bpm));
         currentChart.globalOffset = EditorGUILayout.FloatField("Global Offset", currentChart.globalOffset);
 
@@ -46,16 +55,23 @@ public class ChartEditorWindow : EditorWindow {
             new[] { "1/1", "1/2", "1/4", "1/8", "1/16" },
             new[] { 1, 2, 4, 8, 16 }
         );
+
         // Magnet toggle
         snapEnabled = EditorGUILayout.Toggle(new GUIContent("Snap (magnet)", "Snap notes to the selected musical grid"), snapEnabled);
+
+        // Edit mode toolbar
+        GUILayout.Label("Edit Mode", EditorStyles.label);
+        editKind = (EditKind)GUILayout.Toolbar((int)editKind, new[] { "Normal", "Mute" });
 
         zoom = EditorGUILayout.Slider("Zoom (vertical)", zoom, 0.3f, 3f);
 
         if (GUILayout.Button("Save Chart", GUILayout.Height(22))) {
             SaveChart();
         }
+
         DrawChartArea();
     }
+
     private void DrawChartArea() {
         // Content height from song length OR last note time
         secPerBeat = 60f / currentChart.bpm;
@@ -91,6 +107,7 @@ public class ChartEditorWindow : EditorWindow {
         GUI.EndGroup();
         GUI.EndScrollView();
     }
+
     private void DrawGrid(float width, float height) {
         Handles.BeginGUI();
 
@@ -103,7 +120,6 @@ public class ChartEditorWindow : EditorWindow {
         }
 
         // Sub-division lines according to current quantize (snap grid)
-        // For denom D: subdivisions per beat = D / 4  (since 1/4 = 1 beat)
         int subPerBeat = Mathf.Max(1, quantizeDenom / 4);
         if (subPerBeat > 1) {
             Handles.color = new Color(1, 1, 1, 0.20f);
@@ -114,23 +130,34 @@ public class ChartEditorWindow : EditorWindow {
                 }
             }
         }
+
         // Lane separators (1..6)
         for (int lane = 0; lane <= 6; lane++) {
             float x = lane * LaneWidth;
             Handles.color = new Color(1, 1, 1, 0.2f);
             Handles.DrawLine(new Vector3(x, 0), new Vector3(x, height));
         }
+
         Handles.EndGUI();
     }
+
     private void DrawNotes() {
         if (currentChart.notes == null) return;
 
         foreach (var note in currentChart.notes) {
             float y = (note.time / secPerBeat) * beatHeight * zoom;
-            float x = (note.line - 1) * LaneWidth;
-            Rect r = new Rect(x + 10f, y - 6f, LaneWidth - 20f, 12f);
-            EditorGUI.DrawRect(r, new Color(0f, 1f, 1f, 0.9f));
-            Handles.Label(new Vector3(x + 20f, y - 18f), $"L{note.line}", EditorStyles.miniLabel);
+
+            if (note.kind == NoteKind.Mute) {
+                // full-width bar for Mute note
+                Rect r = new Rect(0f + 5f, y - 6f, 6 * LaneWidth - 10f, 12f);
+                EditorGUI.DrawRect(r, new Color(0.2f, 1f, 0.2f, 0.9f)); // green-ish
+                Handles.Label(new Vector3(10f, y - 18f), $"MUTE", EditorStyles.miniLabel);
+            } else {
+                float x = (note.line - 1) * LaneWidth;
+                Rect r = new Rect(x + 10f, y - 6f, LaneWidth - 20f, 12f);
+                EditorGUI.DrawRect(r, new Color(0f, 1f, 1f, 0.9f));
+                Handles.Label(new Vector3(x + 20f, y - 18f), $"L{note.line}", EditorStyles.miniLabel);
+            }
         }
     }
 
@@ -142,7 +169,8 @@ public class ChartEditorWindow : EditorWindow {
             Vector2 p = e.mousePosition; // already content-local (due to BeginGroup)
 
             int line = Mathf.FloorToInt(p.x / LaneWidth) + 1; // 1..6
-            if (line < 1 || line > 6) return;
+            if (line < 1) line = 1;
+            if (line > 6) line = 6;
 
             float time = (p.y / (beatHeight * zoom)) * secPerBeat;
 
@@ -150,21 +178,26 @@ public class ChartEditorWindow : EditorWindow {
             if (snapEnabled) time = SnapTime(time);
 
             if (e.alt) {
-                DeleteNoteAt(line, time);
+                // Alt + click = delete
+                if (editKind == EditKind.Mute)
+                    DeleteMuteNoteAt(time);
+                else
+                    DeleteNormalNoteAt(line, time);
             } else {
-                AddNoteAt(line, time);
+                // Left click = add
+                if (editKind == EditKind.Mute)
+                    AddNoteAt(1, time, NoteKind.Mute);   // lane is visually ignored
+                else
+                    AddNoteAt(line, time, NoteKind.Normal);
             }
 
             Repaint();
             e.Use();
         }
     }
+
     // Snap time (seconds) to the chosen musical grid
     private float SnapTime(float timeSec) {
-        // For denom D: 1/4 = 1 beat, so subdivisions per beat = D / 4.
-        // Example: D=4 (1/4)  → subPerBeat=1  → step = 1 * secPerBeat.
-        //          D=8 (1/8)  → subPerBeat=2  → step = secPerBeat / 2.
-        //          D=16(1/16) → subPerBeat=4  → step = secPerBeat / 4.
         int subPerBeat = Mathf.Max(1, quantizeDenom / 4);
         float step = secPerBeat / subPerBeat;
 
@@ -172,27 +205,57 @@ public class ChartEditorWindow : EditorWindow {
         return Mathf.Max(0f, k * step);
     }
 
-    private void AddNoteAt(int line, float time) {
-        if (line < 1 || line > 6) return;
+    private void AddNoteAt(int line, float time, NoteKind kind) {
+        if (currentChart == null) return;
 
         var list = new List<NoteData>();
         if (currentChart.notes != null) list.AddRange(currentChart.notes);
 
-        // avoid near-duplicates at same lane/time
-        if (!list.Any(n => n.line == line && Mathf.Abs(n.time - time) < 0.001f)) {
-            list.Add(new NoteData { line = line, time = Mathf.Max(0f, time) });
-            currentChart.notes = list.OrderBy(n => n.time).ThenBy(n => n.line).ToArray();
+        // avoid near-duplicates at same time & kind & (line for Normal)
+        bool Exists(NoteData n) {
+            if (n.kind != kind) return false;
+            if (kind == NoteKind.Normal && n.line != line) return false;
+            return Mathf.Abs(n.time - time) < 0.001f;
+        }
+
+        if (!list.Any(Exists)) {
+            list.Add(new NoteData {
+                line = line,
+                time = Mathf.Max(0f, time),
+                kind = kind
+            });
+
+            currentChart.notes = list
+                .OrderBy(n => n.time)
+                .ThenBy(n => n.kind)
+                .ThenBy(n => n.line)
+                .ToArray();
         }
     }
 
-    private void DeleteNoteAt(int line, float time) {
+    private void DeleteNormalNoteAt(int line, float time) {
         if (currentChart.notes == null) return;
         var list = currentChart.notes.ToList();
 
-        // find closest on lane within a small window (uses current snap step as a guide)
-        float tol = secPerBeat * 0.12f; // ~12% of a beat as tolerance
+        float tol = secPerBeat * 0.12f;
         var target = list
-            .Where(n => n.line == line)
+            .Where(n => n.kind == NoteKind.Normal && n.line == line)
+            .OrderBy(n => Mathf.Abs(n.time - time))
+            .FirstOrDefault();
+
+        if (target != null && Mathf.Abs(target.time - time) < tol) {
+            list.Remove(target);
+            currentChart.notes = list.ToArray();
+        }
+    }
+
+    private void DeleteMuteNoteAt(float time) {
+        if (currentChart.notes == null) return;
+        var list = currentChart.notes.ToList();
+
+        float tol = secPerBeat * 0.12f;
+        var target = list
+            .Where(n => n.kind == NoteKind.Mute)
             .OrderBy(n => Mathf.Abs(n.time - time))
             .FirstOrDefault();
 

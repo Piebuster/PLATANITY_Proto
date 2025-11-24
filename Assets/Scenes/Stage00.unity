@@ -425,7 +425,7 @@ MonoBehaviour:
   - {fileID: 9198943601289181882, guid: a0e722312bb3db149bbb64cf6992e129, type: 3}
   - {fileID: 9198943601289181882, guid: dd11c85653c1fbf4d8adee727c6f7649, type: 3}
   - {fileID: 9198943601289181882, guid: 829626d7040d8d44f9411a7c3e595cd1, type: 3}
-  chart: {fileID: 11400000, guid: b9b3600eab58d99408ac60f8dffc55d9, type: 2}
+  chart: {fileID: 11400000, guid: 49ac7b3958abbb940b8ded8779b40945, type: 2}
   audioSource: {fileID: 698680414}
   leadTimeSec: 2.4
   preRollSec: 0.3
@@ -433,6 +433,10 @@ MonoBehaviour:
   measureSpawn: {fileID: 741513603}
   measureJudge: {fileID: 661433486}
   beatsPerMeasure: 4
+  muteNotePrefab: {fileID: 4543779481966873964, guid: 69b398d11da92d14ba4a9c94253803f3, type: 3}
+  muteSpawn: {fileID: 823437093}
+  muteJudge: {fileID: 476746275}
+  longBodyPrefab: {fileID: 874600182006891325, guid: 03f354830e6c2694a8daea331c96ad22, type: 3}
 --- !u!4 &289659656
 Transform:
   m_ObjectHideFlags: 0
@@ -536,7 +540,7 @@ Transform:
   m_GameObject: {fileID: 303395005}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 21, z: 0}
+  m_LocalPosition: {x: 0, y: 20.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1100,6 +1104,37 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lineNumber: 5
+--- !u!1 &476746274
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 476746275}
+  m_Layer: 0
+  m_Name: MuteJudgeZone
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &476746275
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 476746274}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: -12, y: 16.25, z: 10}
+  m_LocalScale: {x: 0.5, y: 0.1, z: 1.5}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!1 &504884155
 GameObject:
   m_ObjectHideFlags: 0
@@ -1535,7 +1570,7 @@ GameObject:
   m_Component:
   - component: {fileID: 661433486}
   m_Layer: 0
-  m_Name: MeasureJudge
+  m_Name: MeasureJudgeZone
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1598,8 +1633,8 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 0b93d74f60a3a2841a5032d8bc4fc215, type: 3}
-  m_Resource: {fileID: 8300000, guid: 0b93d74f60a3a2841a5032d8bc4fc215, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 5e3251f7839d76040872a674f1df8664, type: 3}
+  m_Resource: {fileID: 8300000, guid: 5e3251f7839d76040872a674f1df8664, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -1934,7 +1969,7 @@ GameObject:
   m_Component:
   - component: {fileID: 741513603}
   m_Layer: 0
-  m_Name: MeasureSpawn
+  m_Name: MeasureSpawnPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2293,6 +2328,37 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lineNumber: 4
+--- !u!1 &823437092
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 823437093}
+  m_Layer: 0
+  m_Name: MuteSpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &823437093
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 823437092}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 25, y: 16.25, z: 10.5}
+  m_LocalScale: {x: 1, y: 1, z: 1.5}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &829792199
 GameObject:
   m_ObjectHideFlags: 0
@@ -4229,6 +4295,7 @@ SceneRoots:
   - {fileID: 2027367176}
   - {fileID: 594313464}
   - {fileID: 741513603}
+  - {fileID: 823437093}
   - {fileID: 1218291349}
   - {fileID: 610162697}
   - {fileID: 23272214}
@@ -4236,6 +4303,7 @@ SceneRoots:
   - {fileID: 376612001}
   - {fileID: 994298740}
   - {fileID: 661433486}
+  - {fileID: 476746275}
   - {fileID: 725275439}
   - {fileID: 2078278245}
   - {fileID: 1423918538}

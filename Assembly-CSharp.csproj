@@ -62,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\NoteJudge.cs" />
+    <Compile Include="Assets\Scripts\LongNoteBody.cs" />
     <Compile Include="Assets\Scripts\GameSettings.cs" />
     <Compile Include="Assets\Scripts\Note.cs" />
     <Compile Include="Assets\Scripts\NoteVisuals.cs" />

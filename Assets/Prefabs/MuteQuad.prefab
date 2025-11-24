@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 5366123542178725771}
   - component: {fileID: 743890586813701063}
   - component: {fileID: 3089113429184417467}
-  - component: {fileID: 4512003580558972721}
+  - component: {fileID: 20576840188084014}
   m_Layer: 0
-  m_Name: MeasureLineQuad
+  m_Name: MuteQuad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -29,7 +29,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -2.641034, y: 11.301745, z: 3.439955}
-  m_LocalScale: {x: 0.1, y: 9, z: 1}
+  m_LocalScale: {x: 0.5, y: 9, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -65,7 +65,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c6c1f049a69b6c2499f2061997081b62, type: 2}
+  - {fileID: 2100000, guid: 6ceef78ad916187499e26ab2b8a5e781, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -87,7 +87,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &4512003580558972721
+--- !u!114 &20576840188084014
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -96,11 +96,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 4543779481966873964}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0ab0cc9d79942cb479b516caa42bdce7, type: 3}
+  m_Script: {fileID: 11500000, guid: 413820c0b41ad584fbc54e0e719698fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   startPos: {x: 0, y: 0, z: 0}
   judgePos: {x: 0, y: 0, z: 0}
   appearDspTime: 0
   hitDspTime: 0
-  lifeAfterHit: 1
+  lineNumber: 1
+  expectedHitTime: 0
+  chartIndex: 0
+  isLongHead: 0
+  isLongTail: 0
+  longBody: {fileID: 0}

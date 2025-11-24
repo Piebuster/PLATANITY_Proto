@@ -2,7 +2,7 @@
 // Purpose: DSP-timestamped input buffer system for precise timing.
 // All judgement requests are synchronized with Audio DSP clock.
 // written by Donghyeok Hahm + GPT
-// updated: 2025-10-22
+// updated: 2025-11-21 (added Mute stroke)
 
 using UnityEngine;
 using System.Collections.Generic;
@@ -21,6 +21,7 @@ public class NoteInputManager : MonoBehaviour {
         {6, new KeyCode[]{ KeyCode.Q, KeyCode.Alpha6 }},
     };
     private struct InputStamp {
+        // lane: 1..6 = normal lanes, 0 = mute stroke
         public int lane;
         public double dspTime;
     }
@@ -40,26 +41,53 @@ public class NoteInputManager : MonoBehaviour {
         if (TimingJudgeCore.I == null || !TimingJudgeCore.I.Initialized)
             return;
         double dspNow = AudioSettings.dspTime;
+        // --- Check long note hold status ---
+        bool strokeHeld = IsStrokeHeld();
+        for (int lane = 1; lane <= 6; lane++) {
+            bool lineHeld = IsLineKeyHeld(lane);
+            bool isHolding = lineHeld && strokeHeld;
+            TimingJudgeCore.I.UpdateLongHold(lane, isHolding);
+        }
         // --- Record keydown events with DSP timestamp ---
         if (IsStrokePressed()) {
+            bool anyHeld = false;
+            // 1..6 lanes with left-hand string keys
             foreach (var pair in keyLayouts) {
                 int lane = pair.Key;
                 if (IsLineKeyHeld(lane)) {
+                    anyHeld = true;
                     inputBuffer.Add(new InputStamp {
                         lane = lane,
                         dspTime = dspNow
                     });
                 }
             }
+            // If no string is held, this stroke is a Mute stroke (lane 0)
+            if (!anyHeld) {
+                inputBuffer.Add(new InputStamp {
+                    lane = 0,
+                    dspTime = dspNow
+                });
+            }
         }
         // --- Process buffered inputs ---
         for (int i = inputBuffer.Count - 1; i >= 0; i--) {
             var s = inputBuffer[i];
-            var (res, idx, ms) = TimingJudgeCore.I.TryJudgeLane(s.lane, s.dspTime);
+            HitResult res;
+            int idx;
+            double ms;
+            if (s.lane == 0) {
+                // Mute note judgement
+                (res, idx, ms) = TimingJudgeCore.I.TryJudgeMute(s.dspTime);
+            } else {
+                // Normal lane judgement (DSP-based)
+                (res, idx, ms) = TimingJudgeCore.I.TryJudgeLane(s.lane, s.dspTime);
+            }
             if (res != HitResult.Miss && idx >= 0)
                 NoteVisuals.Despawn(idx);
             if (res != HitResult.None)
                 JudgeTextController.Instance?.ShowJudge(res.ToString());
+            // remove from buffer when expired or successfully judged (including Miss)
             if (dspNow - s.dspTime > bufferLife || res != HitResult.Miss)
                 inputBuffer.RemoveAt(i);
         }
@@ -79,5 +107,13 @@ public class NoteInputManager : MonoBehaviour {
             return Input.GetKeyDown(KeyCode.RightShift)
                 || Input.GetKeyDown(KeyCode.Return)
                 || Input.GetKeyDown(KeyCode.KeypadEnter);
+    }
+    private static bool IsStrokeHeld() {
+        if (currentMode == ControlMode.Desk)
+            return Input.GetKey(KeyCode.Space);
+        else
+            return Input.GetKey(KeyCode.RightShift)
+                || Input.GetKey(KeyCode.Return)
+                || Input.GetKey(KeyCode.KeypadEnter);
     }
 }
