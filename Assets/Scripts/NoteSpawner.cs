@@ -3,15 +3,16 @@
 // Sets note speed per-instance so it always reaches the judge line in leadTimeSec
 // Compatible with Note.cs (moves by DSP time; visuals only)
 // written by Donghyeok Hahm + GPT
-// updated: 251121 (added Mute notes)
+// updated: 251127 (added Tap notes)
 
 using UnityEngine;
 public class NoteSpawner : MonoBehaviour {
     public Transform[] spawnPoints;   // 6 lane spawn positions
     public Transform[] judgeZones;    // 6 lane judge positions
-    public GameObject[] notePrefabs;  // 6 lane prefabs
+    public GameObject[] notePrefabs;  // normal note prefabs per lane (1..6)
     public Chart chart;               // ScriptableObject with notes[]
     public AudioSource audioSource;   // AudioSource that plays the song
+
     [Header("Travel / Scheduling")]
     public float leadTimeSec = 0.5f;  // travel time from spawn to judge
     public float preRollSec = 0.20f;  // DSP scheduling margin before playback
@@ -19,8 +20,8 @@ public class NoteSpawner : MonoBehaviour {
     private double songStartDspTime;  // DSP time when playback starts
     [Header("Measure Lines")]
     public GameObject measureLinePrefab;  // MeasureLine prefab (MeasureLineQuad)
-    public Transform measureSpawn;        // starting point where measure line start fly
-    public Transform measureJudge;        // location that measure line arrive
+    public Transform measureSpawn;        // starting point where measure line starts to fly
+    public Transform measureJudge;        // location that measure line arrives
     public int beatsPerMeasure = 4;       // beat per bar (default 4/4)
     private int nextMeasureIndex = 0;     // next measure index number
     private float secPerBeat = 0f;        // 1 beat duration in seconds
@@ -29,11 +30,11 @@ public class NoteSpawner : MonoBehaviour {
     public Transform muteSpawn;           // spawn position for mute notes
     public Transform muteJudge;           // judge position for mute notes
     [Header("Long Notes")]
-    public GameObject longBodyPrefab;   // LongBodyQuad prefab
-    //
+    public GameObject longBodyPrefab;     // LongBodyQuad prefab
+    [Header("Tap Notes")]
+    public GameObject[] tapNotePrefabs;   // optional tap-note prefabs per lane (1..6)
     private bool isStarted = false;
     void Awake() {
-        // Basic safety guards
         if (spawnPoints == null || spawnPoints.Length != 6)
             Debug.LogError("[NoteSpawner] spawnPoints must have 6 elements.");
         if (judgeZones == null || judgeZones.Length != 6)
@@ -47,88 +48,79 @@ public class NoteSpawner : MonoBehaviour {
     }
     void Start() {
         if (chart == null || audioSource == null) return;
-        // 1) set play time based on DSP
+        // 1) schedule audio by DSP time
         songStartDspTime = AudioSettings.dspTime + preRollSec;
-        // 2) turn off playOnAwake , PlayScheduled exactly on code
         audioSource.playOnAwake = false;
         audioSource.Stop();
         audioSource.PlayScheduled(songStartDspTime);
-        // 3) initialize timing judge core
+        // 2) init timing core
         TimingJudgeCore.I?.Init(chart, songStartDspTime);
         isStarted = true;
-        // 4) align notes (sort by time)
+        // 3) sort notes by time
         if (chart.notes != null && chart.notes.Length > 1)
             System.Array.Sort(chart.notes, (a, b) => a.time.CompareTo(b.time));
         nextNoteIndex = 0;
-        // +) initialize for MeasureLine
-        if (chart != null && chart.bpm > 0f) {
-            secPerBeat = 60f / chart.bpm;   // 1 beat duration
-        }
+        // 4) measure line setup
+        if (chart != null && chart.bpm > 0f)
+            secPerBeat = 60f / chart.bpm;
         nextMeasureIndex = 0;
     }
     void Update() {
         if (!isStarted || chart == null || audioSource == null) return;
         if (chart.notes == null || chart.notes.Length == 0) return;
-        // make total offset first
+
         float totalOffset = chart.globalOffset + GameSettings.UserOffsetSec;
-        // chart time = time based on DSP - start Time - totalOffset
         double songTimeSec = (AudioSettings.dspTime - songStartDspTime) - totalOffset;
-        // ==== spawn notes ====
+
+        // spawn notes
         while (nextNoteIndex < chart.notes.Length) {
             NoteData next = chart.notes[nextNoteIndex];
-            if (next == null) {
-                nextNoteIndex++;
-                continue;
-            }
-            // chart time (no offset added here)
+            if (next == null) { nextNoteIndex++; continue; }
             double appearTime = next.time - leadTimeSec;
             if (songTimeSec >= appearTime) {
                 SpawnNote(next, nextNoteIndex, totalOffset);
                 nextNoteIndex++;
-            } else {
-                break;
-            }
+            } else break;
         }
-        // ==== spawn MeasureLine ====
+
+        // spawn measure lines
         SpawnMeasuresIfNeeded(songTimeSec, totalOffset);
     }
-    // Spawns a visual note for given NoteData and registers it by chart index
-    // Spawns a visual note for given NoteData and registers it by chart index
+    // Spawn a visual note for given NoteData and register it by chart index
     private void SpawnNote(NoteData noteData, int chartIndex, float totalOffset) {
-        // Strict validation – skip invalid notes
         if (noteData == null) return;
         if (float.IsNaN(noteData.time) || noteData.time < 0f) {
             Debug.LogWarning($"[NoteSpawner] Skip invalid time={noteData.time}");
             return;
         }
-        // ----- Mute note path -----
+        // ----- Mute note -----
         if (noteData.kind == NoteKind.Mute) {
             if (muteNotePrefab == null || muteSpawn == null || muteJudge == null) {
                 Debug.LogWarning("[NoteSpawner] Mute note references not set.");
                 return;
             }
             GameObject go = Instantiate(muteNotePrefab, muteSpawn.position, Quaternion.identity);
-            double hitDsp = songStartDspTime + (noteData.time + totalOffset);
-            double appearDsp = hitDsp - leadTimeSec;
+            double hitDspMute = songStartDspTime + (noteData.time + totalOffset);
+            double appearDspMute = hitDspMute - leadTimeSec;
             Note note = go.GetComponent<Note>();
             if (note != null) {
                 note.lineNumber = 0; // logical "mute lane"
                 note.startPos = muteSpawn.position;
                 note.judgePos = muteJudge.position;
-                note.appearDspTime = appearDsp;
-                note.hitDspTime = hitDsp;
+                note.appearDspTime = appearDspMute;
+                note.hitDspTime = hitDspMute;
                 note.expectedHitTime = noteData.time;
                 note.chartIndex = chartIndex;
             }
             NoteVisuals.Register(chartIndex, go);
             return;
         }
-        // ----- Long note path -----
+        // ----- Long note -----
         if (noteData.kind == NoteKind.Long) {
             SpawnLongNote(noteData, chartIndex, totalOffset);
             return;
         }
-        // ----- Normal note path -----
+        // ----- Tap / Normal notes (lane-based) -----
         if (noteData.line < 1 || noteData.line > 6) {
             Debug.LogWarning($"[NoteSpawner] Skip invalid line={noteData.line}");
             return;
@@ -136,60 +128,53 @@ public class NoteSpawner : MonoBehaviour {
         int laneIdx = noteData.line - 1;
         Transform spawnPos = spawnPoints[laneIdx];
         Transform judgePos = judgeZones[laneIdx];
-        GameObject prefab = notePrefabs[laneIdx];
-        if (spawnPos == null || judgePos == null || prefab == null) {
-            Debug.LogWarning($"[NoteSpawner] Missing reference on lane {noteData.line}");
+        if (spawnPos == null || judgePos == null) {
+            Debug.LogWarning($"[NoteSpawner] Missing spawn/judge on lane {noteData.line}");
             return;
         }
-        GameObject goNormal = Instantiate(prefab, spawnPos.position, Quaternion.identity);
-        double hitDspNormal = songStartDspTime + (noteData.time + totalOffset);
-        double appearDspNormal = hitDspNormal - leadTimeSec;
-        Note noteComp = goNormal.GetComponent<Note>();
+        // choose prefab: tap-specific if available, otherwise normal prefab
+        GameObject prefab = null;
+        if (noteData.kind == NoteKind.Tap && tapNotePrefabs != null && tapNotePrefabs.Length == 6 && tapNotePrefabs[laneIdx] != null)
+            prefab = tapNotePrefabs[laneIdx];
+        else
+            prefab = notePrefabs[laneIdx];
+
+        if (prefab == null) {
+            Debug.LogWarning($"[NoteSpawner] Missing prefab on lane {noteData.line} (kind={noteData.kind})");
+            return;
+        }
+        GameObject goNote = Instantiate(prefab, spawnPos.position, Quaternion.identity);
+        double hitDsp = songStartDspTime + (noteData.time + totalOffset);
+        double appearDsp = hitDsp - leadTimeSec;
+        Note noteComp = goNote.GetComponent<Note>();
         if (noteComp != null) {
             noteComp.lineNumber = noteData.line;
             noteComp.startPos = spawnPos.position;
             noteComp.judgePos = judgePos.position;
-            noteComp.appearDspTime = appearDspNormal;
-            noteComp.hitDspTime = hitDspNormal;
+            noteComp.appearDspTime = appearDsp;
+            noteComp.hitDspTime = hitDsp;
             noteComp.expectedHitTime = noteData.time;
             noteComp.chartIndex = chartIndex;
         }
-        NoteVisuals.Register(chartIndex, goNormal);
+        NoteVisuals.Register(chartIndex, goNote);
     }
     private void SpawnMeasuresIfNeeded(double songTimeSec, float totalOffset) {
-        // if prefab or point empty -> quit
-        if (measureLinePrefab == null || measureSpawn == null || measureJudge == null)
-            return;
-        if (secPerBeat <= 0f || beatsPerMeasure <= 0)
-            return;
-        // length of one bar(sec) = secPerBeat * beatsPerMeasure
+        if (measureLinePrefab == null || measureSpawn == null || measureJudge == null) return;
+        if (secPerBeat <= 0f || beatsPerMeasure <= 0) return;
         double measureDuration = secPerBeat * beatsPerMeasure;
-        // about nextMeasureIndex = 0,1,2,…
         while (true) {
-            // hit timing of this bar
             double measureTime = nextMeasureIndex * measureDuration;
-            // same logic with note : appearTime = hitTime - leadTimeSec
             double appearTime = measureTime - leadTimeSec;
-
-            // songTime passes appearTime -> spawn this MeasureLine
             if (songTimeSec >= appearTime) {
                 SpawnMeasureLine(measureTime, totalOffset);
-                nextMeasureIndex++;   // prepare next bar
-            } else {
-                // not time yet → no more thing to spawn
-                break;
-            }
+                nextMeasureIndex++;
+            } else break;
         }
     }
     private void SpawnMeasureLine(double measureTimeSec, float totalOffset) {
-        // always spawn from same point (measureSpawn)
-        GameObject go = Object.Instantiate(measureLinePrefab,
-                                    measureSpawn.position,
-                                    Quaternion.identity);
-        // calculate DSP time based on same rule with note
+        GameObject go = Instantiate(measureLinePrefab, measureSpawn.position, Quaternion.identity);
         double hitDsp = songStartDspTime + (measureTimeSec + totalOffset);
         double appearDsp = hitDsp - leadTimeSec;
-        // fill value in MeasureLine script
         MeasureLine line = go.GetComponent<MeasureLine>();
         if (line != null) {
             line.startPos = measureSpawn.position;
@@ -246,7 +231,7 @@ public class NoteSpawner : MonoBehaviour {
             tailNote.appearDspTime = tailAppearDsp;
             tailNote.hitDspTime = tailHitDsp;
             tailNote.expectedHitTime = noteData.endTime;
-            tailNote.chartIndex = -1;
+            tailNote.chartIndex = -1; // tail is visual-only
         }
         // BODY (between head and tail)
         if (longBodyPrefab != null) {
@@ -255,12 +240,19 @@ public class NoteSpawner : MonoBehaviour {
             if (bodyComp != null) {
                 bodyComp.head = head.transform;
                 bodyComp.tail = tail.transform;
-                bodyComp.judge = judgePos; // <- important
-                                           // we can use baseWidth value set in prefab
-                                           // if we need, it's ok to adjust by Lane
+                bodyComp.judge = judgePos;
+                LongNoteBody.Register(chartIndex, bodyComp);
+                //
+                //
+                //
+#if UNITY_EDITOR
+                Debug.Log($"[SpawnLong] lane={noteData.line} idx={chartIndex} bodyOK={bodyComp != null} tailOK={bodyComp.tail != null}");
+#endif
+                //
+                //
+                //
             }
-            if (headNote != null)
-                headNote.longBody = bodyComp; 
+            if (headNote != null) headNote.longBody = bodyComp;
         }
     }
 }

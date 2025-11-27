@@ -314,6 +314,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1fdab5f16137bfd42ab2b743c9041aae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  longEarlyReleaseHelper: 0.1
   judge: {fileID: 11400000, guid: 248162a6d3d01e241b4c82a01233c71f, type: 2}
 --- !u!4 &103050398
 Transform:
@@ -437,6 +438,13 @@ MonoBehaviour:
   muteSpawn: {fileID: 823437093}
   muteJudge: {fileID: 476746275}
   longBodyPrefab: {fileID: 874600182006891325, guid: 03f354830e6c2694a8daea331c96ad22, type: 3}
+  tapNotePrefabs:
+  - {fileID: 9198943601289181882, guid: b30e9d6e614f82647ae7e761c61278b0, type: 3}
+  - {fileID: 9198943601289181882, guid: b30e9d6e614f82647ae7e761c61278b0, type: 3}
+  - {fileID: 9198943601289181882, guid: b30e9d6e614f82647ae7e761c61278b0, type: 3}
+  - {fileID: 9198943601289181882, guid: b30e9d6e614f82647ae7e761c61278b0, type: 3}
+  - {fileID: 9198943601289181882, guid: b30e9d6e614f82647ae7e761c61278b0, type: 3}
+  - {fileID: 9198943601289181882, guid: b30e9d6e614f82647ae7e761c61278b0, type: 3}
 --- !u!4 &289659656
 Transform:
   m_ObjectHideFlags: 0

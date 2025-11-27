@@ -15,24 +15,12 @@ MonoBehaviour:
   songName: SURF_LIKE_A_SCALLOP
   song: {fileID: 8300000, guid: 5e3251f7839d76040872a674f1df8664, type: 3}
   bpm: 160
-  globalOffset: 0.14
+  globalOffset: 0.16
   notes:
-  - time: 1.125
-    endTime: 0
-    line: 3
-    kind: 0
-  - time: 1.125
-    endTime: 3
-    line: 3
-    kind: 1
-  - time: 3
-    endTime: 5
-    line: 1
-    kind: 1
   - time: 6
-    endTime: 0
+    endTime: 10.5
     line: 1
-    kind: 0
+    kind: 1
   - time: 11.625
     endTime: 0
     line: 1
@@ -42,9 +30,9 @@ MonoBehaviour:
     line: 1
     kind: 2
   - time: 12
-    endTime: 0
+    endTime: 16.5
     line: 6
-    kind: 0
+    kind: 1
   - time: 18
     endTime: 0
     line: 5
@@ -165,6 +153,14 @@ MonoBehaviour:
     endTime: 0
     line: 1
     kind: 0
+  - time: 46.875
+    endTime: 0
+    line: 1
+    kind: 3
+  - time: 47.625
+    endTime: 0
+    line: 1
+    kind: 3
   - time: 48
     endTime: 0
     line: 4

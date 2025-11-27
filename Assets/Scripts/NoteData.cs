@@ -6,6 +6,7 @@ public enum NoteKind {
     Normal,
     Long,
     Mute,    // mute stroke
+    Tap
 }
 [System.Serializable]
 public class NoteData {

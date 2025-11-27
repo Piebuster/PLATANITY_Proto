@@ -6,6 +6,6 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "GameJudgeSettings", menuName = "PLATANITY/Judge Settings")]
 public class GameJudgeSettings : ScriptableObject {
     [Header("Judge Time Range (sec)")]
-    public float perfectTiming = 0.060f;
-    public float goodTiming = 0.080f;
+    public float perfectTiming = 0.070f;
+    public float goodTiming = 0.090f;
 }
